@@ -2,19 +2,32 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"log"
 
-	"github.com/radhitka/go-music/models"
+	"github.com/joho/godotenv"
+	"github.com/radhitka/go-music/config"
+	"github.com/radhitka/go-music/controllers"
 	"github.com/radhitka/go-music/response"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	router := gin.Default()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	router.GET("/musics", getMusics)
-	router.GET("/musics/:id", getMusicById)
+	db := config.LoadDatabase()
+
+	router := gin.New()
+
+	musicController := controllers.NewMusicController(db)
+
+	router.GET("/musics", musicController.GetMusics)
+	router.POST("/musics", musicController.AddMusic)
+	router.GET("/musics/:id", musicController.GetMusicById)
+	router.NoRoute(handleNoRoute)
 
 	fmt.Println("Server running.....")
 
@@ -22,32 +35,8 @@ func main() {
 
 }
 
-func getMusics(c *gin.Context) {
-
-	mr := models.Musics
-
-	newReponse := response.NewSuccessResponse(response.ToMusicsReponse(mr))
-
-	c.IndentedJSON(http.StatusOK, newReponse)
-}
-
-func getMusicById(c *gin.Context) {
-
-	id := c.Param("id")
-
-	mr := models.Musics
-
-	for _, m := range mr {
-		if m.ID == id {
-
-			successResponse := response.NewSuccessResponse(response.ToMusicReponse(m))
-			c.IndentedJSON(successResponse.Code, successResponse)
-			return
-		}
-	}
-
-	notFoundResponse := response.NewNotFoundResponse()
+func handleNoRoute(c *gin.Context) {
+	notFoundResponse := response.NewNotFoundResponse("Route not found!")
 
 	c.IndentedJSON(notFoundResponse.Code, notFoundResponse)
-
 }

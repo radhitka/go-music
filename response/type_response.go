@@ -2,15 +2,21 @@ package response
 
 import "net/http"
 
-type ReponseData struct {
+type reponseData struct {
 	Code   int    `json:"code"`
 	Status string `json:"status"`
 	Data   any    `json:"data"`
 }
 
-func NewSuccessResponse(d any) *ReponseData {
+type reponseWithoutData struct {
+	Code    int    `json:"code"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
 
-	return &ReponseData{
+func NewSuccessResponse(d any) *reponseData {
+
+	return &reponseData{
 		Code:   http.StatusOK,
 		Status: "Success",
 		Data:   d,
@@ -18,11 +24,22 @@ func NewSuccessResponse(d any) *ReponseData {
 
 }
 
-func NewNotFoundResponse() *ReponseData {
+func NewNotFoundResponse(m string) *reponseWithoutData {
 
-	return &ReponseData{
-		Code:   http.StatusNotFound,
-		Status: "NotFound",
+	return &reponseWithoutData{
+		Code:    http.StatusNotFound,
+		Status:  "NotFound",
+		Message: m,
+	}
+
+}
+
+func NewErrorResponse(c int, m string) *reponseWithoutData {
+
+	return &reponseWithoutData{
+		Code:    c,
+		Status:  http.StatusText(c),
+		Message: m,
 	}
 
 }
