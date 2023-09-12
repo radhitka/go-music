@@ -1,95 +1,47 @@
 package controllers
 
 import (
-	"database/sql"
-	"log"
-
 	"github.com/gin-gonic/gin"
-	"github.com/radhitka/go-music/helpers"
-	"github.com/radhitka/go-music/models"
-	"github.com/radhitka/go-music/request"
 	"github.com/radhitka/go-music/response"
+	"github.com/radhitka/go-music/services"
 )
 
 type MusicController struct {
-	DB *sql.DB
+	MusicService services.MusicService
 }
 
-func NewMusicController(db *sql.DB) *MusicController {
+func NewMusicController(ms services.MusicService) *MusicController {
 	return &MusicController{
-		DB: db,
+		MusicService: ms,
 	}
 }
 
-func (ms *MusicController) GetMusics(c *gin.Context) {
+func (mc *MusicController) GetMusics(c *gin.Context) {
+	musics := mc.MusicService.GetMusics(c.Request.Context())
 
-	rows, err := ms.DB.Query("select id,title,artist,is_published from musics")
+	res := response.NewResponseData().Success().WithData(musics)
 
-	if err != nil {
-		log.Fatal(err)
+	c.IndentedJSON(res.Code, res)
 
-	}
-
-	defer rows.Close()
-
-	var musics []models.Music
-
-	for rows.Next() {
-
-		music := models.Music{}
-
-		err := rows.Scan(&music.ID, &music.Title, &music.Artist, &music.IsPublished)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		musics = append(musics, music)
-
-	}
-
-	newResponse := response.NewResponseData().Success().WithData(musics)
-
-	c.IndentedJSON(newResponse.Code, newResponse)
 }
 
-func (ms *MusicController) GetMusicById(c *gin.Context) {
+func (mc *MusicController) GetMusicById(c *gin.Context) {
 	id := c.Param("id")
 
-	music := models.Music{}
+	music, null := mc.MusicService.GetMusicById(c.Request.Context(), id)
 
-	rsql := "select id,title,artist,is_published from musics where id = ?"
+	if null {
+		res := response.NewResponseData().NotFound().WithMessage("Music Not Found!")
 
-	err := ms.DB.QueryRow(rsql, id).Scan(&music.ID, &music.Title, &music.Artist, &music.IsPublished)
-
-	switch err {
-
-	case sql.ErrNoRows:
-		notFoundResponse := response.NewResponseData().NotFound().WithMessage("Music not found")
-
-		c.IndentedJSON(notFoundResponse.Code, notFoundResponse)
+		c.IndentedJSON(res.Code, res)
 		return
-	case nil:
-		successResponse := response.NewResponseData().Success().WithData(response.ToMusicResponse(music))
-
-		c.IndentedJSON(successResponse.Code, successResponse)
-		return
-	default:
-		log.Fatal(err)
 	}
+
+	res := response.NewResponseData().Success().WithData(music)
+
+	c.IndentedJSON(res.Code, res)
 }
 
-func (ms *MusicController) AddMusic(c *gin.Context) {
+func (mc *MusicController) AddMusic(c *gin.Context) {
 
-	var musicRequest request.MusicRequest
-
-	err := c.ShouldBind(&musicRequest)
-
-	if err != nil {
-
-		helpers.HandleValidationErr(c, err)
-		return
-	}
-
-	c.IndentedJSON(200, c.PostForm("name"))
 }

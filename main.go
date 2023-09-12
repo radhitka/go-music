@@ -7,7 +7,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/radhitka/go-music/config"
 	"github.com/radhitka/go-music/controllers"
+	"github.com/radhitka/go-music/repository"
 	"github.com/radhitka/go-music/response"
+	"github.com/radhitka/go-music/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,9 +23,11 @@ func main() {
 	db := config.LoadDatabase()
 
 	router := gin.Default()
-
-	musicController := controllers.NewMusicController(db)
 	router.HandleMethodNotAllowed = true
+
+	musicRepository := repository.NewMusicRepository()
+	musicService := services.NewMusicService(*musicRepository, db)
+	musicController := controllers.NewMusicController(*musicService)
 
 	router.GET("/musics", musicController.GetMusics)
 	router.POST("/musics", musicController.AddMusic)
