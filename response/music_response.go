@@ -11,8 +11,7 @@ type MusicResponse struct {
 	IsPublished bool   `json:"is_published"`
 }
 
-func ToMusicReponse(m models.Music) MusicResponse {
-
+func ToMusicResponse(m models.Music) MusicResponse {
 	return MusicResponse{
 		ID:          m.ID,
 		Title:       m.Title,
@@ -21,12 +20,12 @@ func ToMusicReponse(m models.Music) MusicResponse {
 	}
 }
 
-func ToMusicsReponse(ms []models.Music) []MusicResponse {
+func ToMusicsResponse(ms []models.Music) []MusicResponse {
 
 	var mr []MusicResponse
 
 	for _, m := range ms {
-		mr = append(mr, ToMusicReponse(m))
+		mr = append(mr, ToMusicResponse(m))
 	}
 
 	return mr

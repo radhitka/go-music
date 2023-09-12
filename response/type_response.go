@@ -2,44 +2,47 @@ package response
 
 import "net/http"
 
-type reponseData struct {
-	Code   int    `json:"code"`
-	Status string `json:"status"`
-	Data   any    `json:"data"`
-}
-
-type reponseWithoutData struct {
+type responseData struct {
 	Code    int    `json:"code"`
-	Status  string `json:"status"`
 	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
 }
 
-func NewSuccessResponse(d any) *reponseData {
-
-	return &reponseData{
-		Code:   http.StatusOK,
-		Status: "Success",
-		Data:   d,
-	}
-
+func NewResponseData() *responseData {
+	return &responseData{}
 }
 
-func NewNotFoundResponse(m string) *reponseWithoutData {
-
-	return &reponseWithoutData{
-		Code:    http.StatusNotFound,
-		Status:  "NotFound",
-		Message: m,
-	}
-
+func (res *responseData) WithCode(code int) *responseData {
+	res.Code = code
+	return res
 }
 
-func NewErrorResponse(c int, m string) *reponseWithoutData {
+func (res *responseData) WithData(data any) *responseData {
+	res.Data = data
+	return res
+}
 
-	return &reponseWithoutData{
-		Code:    c,
-		Status:  http.StatusText(c),
-		Message: m,
-	}
+func (res *responseData) WithMessage(statusMessage string) *responseData {
+	res.Message = statusMessage
+	return res
+}
 
+func (res *responseData) Success() *responseData {
+	return res.WithCode(http.StatusOK).WithMessage(http.StatusText(http.StatusOK))
+}
+
+func (res *responseData) NotFound() *responseData {
+	return res.WithCode(http.StatusNotFound).WithMessage(http.StatusText(http.StatusNotFound))
+}
+
+func (res *responseData) Forbidden() *responseData {
+	return res.WithCode(http.StatusForbidden).WithMessage(http.StatusText(http.StatusForbidden))
+}
+
+func (res *responseData) MethodNotAllowed() *responseData {
+	return res.WithCode(http.StatusMethodNotAllowed).WithMessage(http.StatusText(http.StatusMethodNotAllowed))
+}
+
+func (res *responseData) UnprocessableEntity() *responseData {
+	return res.WithCode(http.StatusUnprocessableEntity)
 }

@@ -48,9 +48,9 @@ func (ms *MusicController) GetMusics(c *gin.Context) {
 
 	}
 
-	newReponse := response.NewSuccessResponse(response.ToMusicsReponse(musics))
+	newResponse := response.NewResponseData().Success().WithData(musics)
 
-	c.IndentedJSON(newReponse.Code, newReponse)
+	c.IndentedJSON(newResponse.Code, newResponse)
 }
 
 func (ms *MusicController) GetMusicById(c *gin.Context) {
@@ -65,12 +65,12 @@ func (ms *MusicController) GetMusicById(c *gin.Context) {
 	switch err {
 
 	case sql.ErrNoRows:
-		notFoundResponse := response.NewNotFoundResponse("Music not found")
+		notFoundResponse := response.NewResponseData().NotFound().WithMessage("Music not found")
 
 		c.IndentedJSON(notFoundResponse.Code, notFoundResponse)
 		return
 	case nil:
-		successResponse := response.NewSuccessResponse(response.ToMusicReponse(music))
+		successResponse := response.NewResponseData().Success().WithData(response.ToMusicResponse(music))
 
 		c.IndentedJSON(successResponse.Code, successResponse)
 		return

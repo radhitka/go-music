@@ -20,14 +20,16 @@ func main() {
 
 	db := config.LoadDatabase()
 
-	router := gin.New()
+	router := gin.Default()
 
 	musicController := controllers.NewMusicController(db)
+	router.HandleMethodNotAllowed = true
 
 	router.GET("/musics", musicController.GetMusics)
 	router.POST("/musics", musicController.AddMusic)
 	router.GET("/musics/:id", musicController.GetMusicById)
 	router.NoRoute(handleNoRoute)
+	router.NoMethod(handleNoMethod)
 
 	fmt.Println("Server running.....")
 
@@ -36,7 +38,13 @@ func main() {
 }
 
 func handleNoRoute(c *gin.Context) {
-	notFoundResponse := response.NewNotFoundResponse("Route not found!")
+	notFoundResponse := response.NewResponseData().NotFound().WithMessage("Route Not found!")
+
+	c.IndentedJSON(notFoundResponse.Code, notFoundResponse)
+}
+
+func handleNoMethod(c *gin.Context) {
+	notFoundResponse := response.NewResponseData().MethodNotAllowed().WithMessage("Method Not Allowed!")
 
 	c.IndentedJSON(notFoundResponse.Code, notFoundResponse)
 }
