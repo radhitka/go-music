@@ -42,14 +42,13 @@ func (ms *MusicService) GetMusicsByFiltered(ctx context.Context, c *gin.Context)
 
 	helpers.PanicIfError(err)
 
+	musics := ms.MusicRepository.GetMusics(ctx, tx)
+
 	if c.Query("published") != "" {
 		isPublished, _ := strconv.ParseBool(c.Query("published"))
-		musics := ms.MusicRepository.GetMusicsByPublished(ctx, tx, isPublished)
 
-		return response.ToMusicsResponse(musics)
+		musics = ms.MusicRepository.GetMusicsByPublished(ctx, tx, isPublished)
 	}
-
-	musics := ms.MusicRepository.GetMusics(ctx, tx)
 
 	return response.ToMusicsResponse(musics)
 
