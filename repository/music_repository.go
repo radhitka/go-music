@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/radhitka/go-music/helpers"
 	"github.com/radhitka/go-music/models"
 )
 
@@ -20,9 +21,9 @@ func (mr *MusicRepository) GetMusics(ctx context.Context, tx *sql.Tx) []models.M
 	rawSql := "select id,title,artist,is_published from musics"
 
 	rows, err := tx.QueryContext(ctx, rawSql)
-	if err != nil {
-		panic(err)
-	}
+
+	helpers.PanicIfError(err)
+
 	defer rows.Close()
 
 	var musics []models.Music
@@ -43,9 +44,7 @@ func (mr *MusicRepository) GetMusicById(ctx context.Context, tx *sql.Tx, id stri
 
 	rows, err := tx.QueryContext(ctx, rawSql, id)
 
-	if err != nil {
-		panic(err)
-	}
+	helpers.PanicIfError(err)
 
 	defer rows.Close()
 
@@ -53,9 +52,7 @@ func (mr *MusicRepository) GetMusicById(ctx context.Context, tx *sql.Tx, id stri
 	if rows.Next() {
 		err := rows.Scan(&music.ID, &music.Title, &music.Artist, &music.IsPublished)
 
-		if err != nil {
-			panic(err)
-		}
+		helpers.PanicIfError(err)
 
 		return music, nil
 
@@ -66,5 +63,17 @@ func (mr *MusicRepository) GetMusicById(ctx context.Context, tx *sql.Tx, id stri
 
 func (mr *MusicRepository) AddMusic(ctx context.Context, tx *sql.Tx, music models.Music) models.Music {
 
-	return models.Music{}
+	rawSql := "insert into musics(title,artist,is_published) values (?, ?, ?)"
+
+	result, err := tx.ExecContext(ctx, rawSql, music.Title, music.Artist, music.IsPublished)
+
+	helpers.PanicIfError(err)
+
+	newId, err := result.LastInsertId()
+
+	helpers.PanicIfError(err)
+
+	music.ID = int(newId)
+
+	return music
 }

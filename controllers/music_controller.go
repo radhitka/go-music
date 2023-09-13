@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/radhitka/go-music/request"
 	"github.com/radhitka/go-music/response"
 	"github.com/radhitka/go-music/services"
 )
@@ -43,5 +44,13 @@ func (mc *MusicController) GetMusicById(c *gin.Context) {
 }
 
 func (mc *MusicController) AddMusic(c *gin.Context) {
+	var musicRequest request.MusicRequest
 
+	c.Bind(&musicRequest)
+
+	music := mc.MusicService.AddMusic(c.Request.Context(), musicRequest)
+
+	res := response.NewResponseData().Success().WithData(music)
+
+	c.IndentedJSON(res.Code, res)
 }

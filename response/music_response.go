@@ -5,7 +5,7 @@ import (
 )
 
 type MusicResponse struct {
-	ID          string `json:"id"`
+	ID          int    `json:"id"`
 	Title       string `json:"title"`
 	Artist      string `json:"artist"`
 	IsPublished bool   `json:"is_published"`
@@ -16,7 +16,7 @@ func ToMusicResponse(m models.Music) MusicResponse {
 		ID:          m.ID,
 		Title:       m.Title,
 		Artist:      m.Artist,
-		IsPublished: true,
+		IsPublished: m.IsPublished,
 	}
 }
 

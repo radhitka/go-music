@@ -1,7 +1,7 @@
 package models
 
 type Music struct {
-	ID          string
+	ID          int
 	Title       string
 	Artist      string
 	IsPublished bool
@@ -9,17 +9,17 @@ type Music struct {
 
 var Musics = []Music{
 	{
-		ID:     "1",
+		ID:     1,
 		Title:  "Sudah",
 		Artist: "Ardhito Pramodu",
 	},
 	{
-		ID:     "2",
+		ID:     2,
 		Title:  "Muak",
 		Artist: "Aruma",
 	},
 	{
-		ID:     "3",
+		ID:     3,
 		Title:  "Tak Segampang Itu",
 		Artist: "Anggi Marito",
 	},
