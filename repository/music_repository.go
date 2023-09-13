@@ -77,3 +77,14 @@ func (mr *MusicRepository) AddMusic(ctx context.Context, tx *sql.Tx, music model
 
 	return music
 }
+
+func (mr *MusicRepository) UpdateMusic(ctx context.Context, tx *sql.Tx, music models.Music) models.Music {
+
+	rawSql := "UPDATE musics SET title = ?,artist = ? ,is_published = ? WHERE id = ?"
+
+	_, err := tx.ExecContext(ctx, rawSql, music.Title, music.Artist, music.IsPublished, music.ID)
+
+	helpers.PanicIfError(err)
+
+	return music
+}

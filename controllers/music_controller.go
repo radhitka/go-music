@@ -54,3 +54,18 @@ func (mc *MusicController) AddMusic(c *gin.Context) {
 
 	c.IndentedJSON(res.Code, res)
 }
+
+func (mc *MusicController) UpdateMusic(c *gin.Context) {
+	id := c.Param("id")
+
+	var musicRequest request.MusicRequest
+
+	c.Bind(&musicRequest)
+
+	music := mc.MusicService.UpdateMusic(c.Request.Context(), musicRequest, id)
+
+	res := response.NewResponseData().Success().WithData(music)
+
+	c.IndentedJSON(res.Code, res)
+
+}

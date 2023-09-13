@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"database/sql"
+	"strconv"
 
 	"github.com/radhitka/go-music/helpers"
 	"github.com/radhitka/go-music/models"
@@ -64,6 +65,30 @@ func (ms *MusicService) AddMusic(ctx context.Context, req request.MusicRequest) 
 	}
 
 	music = ms.MusicRepository.AddMusic(ctx, tx, music)
+
+	return response.ToMusicResponse(music)
+}
+
+func (ms *MusicService) UpdateMusic(ctx context.Context, req request.MusicRequest, id string) response.MusicResponse {
+
+	tx, err := ms.DB.Begin()
+
+	helpers.PanicIfError(err)
+
+	defer helpers.CommitOrRollback(tx)
+
+	music, err := ms.MusicRepository.GetMusicById(ctx, tx, id)
+
+	helpers.PanicIfError(err)
+
+	newId, _ := strconv.Atoi(id)
+
+	music.ID = newId
+	music.Title = req.Title
+	music.Artist = req.Artist
+	music.IsPublished = req.IsPublised
+
+	music = ms.MusicRepository.UpdateMusic(ctx, tx, music)
 
 	return response.ToMusicResponse(music)
 
