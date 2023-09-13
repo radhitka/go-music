@@ -29,10 +29,35 @@ func (mr *MusicRepository) GetMusics(ctx context.Context, tx *sql.Tx) []models.M
 	var musics []models.Music
 
 	for rows.Next() {
-		music := models.Music{}
-		rows.Scan(&music.ID, &music.Title, &music.Artist, &music.IsPublished)
+		music, err := scanToMusic(rows)
 
-		musics = append(musics, music)
+		helpers.PanicIfError(err)
+
+		musics = append(musics, *music)
+	}
+
+	return musics
+}
+
+func (mr *MusicRepository) GetMusicsByPublished(ctx context.Context, tx *sql.Tx, isPublished bool) []models.Music {
+
+	rawSql := "select id,title,artist,is_published from musics where is_published = ?"
+
+	rows, err := tx.QueryContext(ctx, rawSql, isPublished)
+
+	helpers.PanicIfError(err)
+
+	defer rows.Close()
+
+	var musics []models.Music
+
+	for rows.Next() {
+
+		music, err := scanToMusic(rows)
+
+		helpers.PanicIfError(err)
+
+		musics = append(musics, *music)
 	}
 
 	return musics
@@ -48,16 +73,16 @@ func (mr *MusicRepository) GetMusicById(ctx context.Context, tx *sql.Tx, id stri
 
 	defer rows.Close()
 
-	music := models.Music{}
 	if rows.Next() {
-		err := rows.Scan(&music.ID, &music.Title, &music.Artist, &music.IsPublished)
+
+		music, err := scanToMusic(rows)
 
 		helpers.PanicIfError(err)
 
-		return music, nil
+		return *music, nil
 
 	} else {
-		return music, errors.New("music not found")
+		return models.Music{}, errors.New("music not found")
 	}
 }
 
@@ -87,4 +112,14 @@ func (mr *MusicRepository) UpdateMusic(ctx context.Context, tx *sql.Tx, music mo
 	helpers.PanicIfError(err)
 
 	return music
+}
+
+func scanToMusic(rows *sql.Rows) (*models.Music, error) {
+
+	music := models.Music{}
+
+	err := rows.Scan(&music.ID, &music.Title, &music.Artist, &music.IsPublished)
+
+	return &music, err
+
 }

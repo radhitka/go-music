@@ -18,6 +18,19 @@ func NewMusicController(ms services.MusicService) *MusicController {
 }
 
 func (mc *MusicController) GetMusics(c *gin.Context) {
+
+	queryParams := c.Request.URL.Query()
+
+	if len(queryParams) > 0 {
+
+		musics := mc.MusicService.GetMusicsByFiltered(c.Request.Context(), c)
+
+		res := response.NewResponseData().Success().WithData(musics)
+
+		c.IndentedJSON(res.Code, res)
+		return
+	}
+
 	musics := mc.MusicService.GetMusics(c.Request.Context())
 
 	res := response.NewResponseData().Success().WithData(musics)
@@ -50,7 +63,7 @@ func (mc *MusicController) AddMusic(c *gin.Context) {
 
 	music := mc.MusicService.AddMusic(c.Request.Context(), musicRequest)
 
-	res := response.NewResponseData().Success().WithData(music)
+	res := response.NewResponseData().SuccessCreated().WithData(music)
 
 	c.IndentedJSON(res.Code, res)
 }
@@ -64,7 +77,7 @@ func (mc *MusicController) UpdateMusic(c *gin.Context) {
 
 	music := mc.MusicService.UpdateMusic(c.Request.Context(), musicRequest, id)
 
-	res := response.NewResponseData().Success().WithData(music)
+	res := response.NewResponseData().SuccessCreated().WithData(music)
 
 	c.IndentedJSON(res.Code, res)
 

@@ -31,6 +31,10 @@ func (res *responseData) Success() *responseData {
 	return res.WithCode(http.StatusOK).WithMessage(http.StatusText(http.StatusOK))
 }
 
+func (res *responseData) SuccessCreated() *responseData {
+	return res.WithCode(http.StatusCreated).WithMessage(http.StatusText(http.StatusCreated))
+}
+
 func (res *responseData) NotFound() *responseData {
 	return res.WithCode(http.StatusNotFound).WithMessage(http.StatusText(http.StatusNotFound))
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"github.com/radhitka/go-music/helpers"
 	"github.com/radhitka/go-music/models"
 	"github.com/radhitka/go-music/repository"
@@ -33,6 +34,25 @@ func (ms *MusicService) GetMusics(ctx context.Context) []response.MusicResponse 
 	musics := ms.MusicRepository.GetMusics(ctx, tx)
 
 	return response.ToMusicsResponse(musics)
+}
+
+func (ms *MusicService) GetMusicsByFiltered(ctx context.Context, c *gin.Context) []response.MusicResponse {
+
+	tx, err := ms.DB.Begin()
+
+	helpers.PanicIfError(err)
+
+	if c.Query("published") != "" {
+		isPublished, _ := strconv.ParseBool(c.Query("published"))
+		musics := ms.MusicRepository.GetMusicsByPublished(ctx, tx, isPublished)
+
+		return response.ToMusicsResponse(musics)
+	}
+
+	musics := ms.MusicRepository.GetMusics(ctx, tx)
+
+	return response.ToMusicsResponse(musics)
+
 }
 
 func (ms *MusicService) GetMusicById(ctx context.Context, id string) (response.MusicResponse, bool) {
