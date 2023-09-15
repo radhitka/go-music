@@ -33,6 +33,7 @@ func main() {
 	router.POST("/musics", musicController.AddMusic)
 	router.GET("/musics/:id", musicController.GetMusicById)
 	router.PUT("/musics/:id", musicController.UpdateMusic)
+	router.DELETE("/musics/:id", musicController.DeleteMusic)
 	router.NoRoute(handleNoRoute)
 	router.NoMethod(handleNoMethod)
 
